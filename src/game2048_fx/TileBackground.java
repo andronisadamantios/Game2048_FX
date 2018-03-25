@@ -26,19 +26,19 @@ public class TileBackground extends Group {
         Rectangle rect = new Rectangle(RECT_SIZE, RECT_SIZE, COLOR_BACKGROUND);
         rect.setArcHeight(ARC_SIZE);
         rect.setArcWidth(ARC_SIZE);
-        rect.setX(getX(this.col));
-        rect.setY(getY(this.row));
         return rect;
     }
 
     protected int row;
     protected int col;
-    protected Rectangle rect;
+    protected final Rectangle rect;
 
     public TileBackground(int row, int col) {
         this.row = row;
         this.col = col;
 
+        this.setTranslateX(getX(this.col));
+        this.setTranslateY(getY(this.row));
         this.rect = this.createRectangle();
         this.getChildren().add(this.rect);
     }
