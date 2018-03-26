@@ -29,7 +29,7 @@ public class ApplicationGame2048 extends Application {
         root.getChildren().add(this.board);
         this.board.toFront();
         this.update();
-        Scene scene = new Scene(root, root.getBoundsInLocal().getWidth(), root.getBoundsInLocal().getHeight());
+        Scene scene = new Scene(root, root.getBoundsInLocal().getWidth()+2* BoardBase.PADDING_LEFT, root.getBoundsInLocal().getHeight()+2*BoardBase.PADDING_TOP);
 
         primaryStage.setTitle("Game 2048");
         primaryStage.setScene(scene);
@@ -40,9 +40,6 @@ public class ApplicationGame2048 extends Application {
     }
 
     private void handleKey(KeyEvent event) {
-        if (this.playing) { // using queues as input buffer and animation buffer
-            return ; // did not work to fix problem when many keys are pressed fast and animation is slow
-        } // proxeiro fix: do not play if it is animating, oute afto works
         if (null != event.getCode()) {
             switch (event.getCode()) {
                 case UP:

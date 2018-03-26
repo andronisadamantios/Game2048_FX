@@ -8,18 +8,15 @@ import javafx.scene.shape.Rectangle;
 public class TileBackground extends Group {
 
     protected static final Color COLOR_BACKGROUND = Color.LIGHTGRAY;
-    protected static final double PADDING_TOP = 20;
-    protected static final double PADDING_LEFT = 20;
-    protected static final double MARGIN = 10;
     protected static final double RECT_SIZE = 100;
     protected static final double ARC_SIZE = 20;
 
     protected static double getX(int col) {
-        return PADDING_LEFT + col * (MARGIN + RECT_SIZE);
+        return BoardBase.PADDING_LEFT + col * (BoardBase.MARGIN + RECT_SIZE);
     }
 
     protected static double getY(int row) {
-        return PADDING_TOP + row * (MARGIN + RECT_SIZE);
+        return BoardBase.PADDING_TOP + row * (BoardBase.MARGIN + RECT_SIZE);
     }
 
     private Rectangle createRectangle() {

@@ -17,13 +17,13 @@ import javafx.util.Duration;
 
 public class Tile extends TileBackground {
 
-    private final static boolean ANIMATION_ROTATIONS = false;
-    private final static Duration DURATION = Duration.seconds(0.1);
+    public final static boolean ANIMATION_ROTATIONS = false;
+    public final static Duration DURATION = Duration.seconds(0.1);
     private final static Color COLOR_FOREGROUND = Color.BLACK;
 
     private static Text createText(int row, int col) {
         Text text = new Text("");
-        text.setFont(new Font(60));
+        text.setFont(Font.font(60));
         text.setFill(COLOR_FOREGROUND);
 
         Bounds b = text.getBoundsInLocal();
@@ -48,6 +48,10 @@ public class Tile extends TileBackground {
         this.value = value;
         this.text.setText(Integer.toString(this.value));
         Bounds b = this.text.getBoundsInLocal();
+        while (b.getWidth() > RECT_SIZE * 0.9) {
+            this.text.setFont(Font.font(this.text.getFont().getSize() * 5 / 6));
+            b = this.text.getBoundsInLocal();
+        }
         this.text.setX(RECT_SIZE / 2 - b.getWidth() / 2);
         this.text.setY(RECT_SIZE / 2 + b.getHeight() / 4);
         int rgb = game2048.utils.getRGB2(value);
@@ -100,7 +104,7 @@ public class Tile extends TileBackground {
         int a = (b ? 1 : -1);
         double angle = 90 * m * a;
         f.angle = angle;
-        Point2D vector2 = vector.multiply(MARGIN + RECT_SIZE);
+        Point2D vector2 = vector.multiply(BoardBase.MARGIN + RECT_SIZE);
         f.x = vector2.getX();
         f.y = vector2.getY();
         return f;
