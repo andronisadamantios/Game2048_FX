@@ -1,17 +1,13 @@
 package game2048_fx;
 
-import game2048.MoveTile;
-import game2048.matrix.IMatrix2048;
-import game2048.matrix.Matrix;
-import java.util.Collection;
+import game2048.MoveBoard;
+import java.util.ArrayDeque;
+import java.util.Queue;
 
 public class Board extends BoardBase {
 
-    private final IMatrix2048 matrix2048;
-
-    public Board(IMatrix2048 matrix2048) {
-        super(((Matrix) matrix2048).getRows(), ((Matrix) matrix2048).getCols());
-        this.matrix2048 = matrix2048;
+    public Board(int rows, int cols) {
+        super(rows, cols);
     }
 
     public Tile getTile(int row, int col) {
@@ -25,12 +21,33 @@ public class Board extends BoardBase {
         tile.appear();
     }
 
-    public void update() {
-        Collection<MoveTile> lastMove = this.matrix2048.getLastMove();
-        if (lastMove == null || lastMove.isEmpty()) {
+    private boolean noTileAnimating() {
+        return this.getChildren().stream().filter(c -> c instanceof Tile).map(c -> (Tile) c)
+                .noneMatch(Tile::anyAnimationsRunning);
+    }
+    //private final DelayQueue<MoveBoard> movesToDo = new DelayQueue<>();
+    private final Queue<MoveBoard> movesToDo = new ArrayDeque<>();
+
+    public void update(MoveBoard lastMove) {
+        if (!movesToDo.contains(lastMove)) {
+            movesToDo.add(lastMove);
+        }
+        this.update();
+    }
+
+    protected void update() {
+        if (!movesToDo.isEmpty() && this.noTileAnimating()) {
+            this.updateNext();
+        }
+    }
+
+    private void updateNext() {
+        if (movesToDo.isEmpty()) {
             return;
         }
-        lastMove.stream()
+        MoveBoard lastMove = movesToDo.remove();
+
+        lastMove.tileMoves.stream()
                 .forEach((mt) -> {
                     Tile tEnd = this.getTile(mt.getEnd().getRow(), mt.getEnd().getCol());
                     if (tEnd != null) {
@@ -39,7 +56,7 @@ public class Board extends BoardBase {
                     Tile t = this.getTile(mt.getStart().getRow(), mt.getStart().getCol());
                     if (t != null) {
                         t.toFront();
-                        t.move(mt.getVector(), this.matrix2048.getValue(mt.getEnd().getRow(), mt.getEnd().getCol()));
+                        t.move(mt, mt.getNewValue());
                     }
                 });
     }

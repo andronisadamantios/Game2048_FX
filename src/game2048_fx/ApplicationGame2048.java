@@ -2,25 +2,25 @@ package game2048_fx;
 
 import game2048.Direction;
 import game2048.Game2048;
-import game2048.MoveTile;
+import game2048.MoveBoard;
 import game2048.matrix.Matrix;
-import java.util.ArrayDeque;
 import java.util.Collection;
-import java.util.Queue;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class ApplicationGame2048 extends Application {
 
+    public static final boolean ANIMATION_ROTATIONS = true;
+    public static final Duration DURATION = Duration.seconds(1);
+
     private final Game2048 game = new Game2048();
-    private final Board board = new Board(game.getMatrix());
+    private final Board board = new Board(((Matrix) game.getMatrix()).getRows(), ((Matrix) game.getMatrix()).getCols());
     private final BoardBackground boardBackground = new BoardBackground(Game2048.ROWS, Game2048.COLS);
-    private final Queue<KeyCode> inputBuffer = new ArrayDeque<>();
-    private boolean playing;
 
     @Override
     public void start(Stage primaryStage) {
@@ -29,7 +29,7 @@ public class ApplicationGame2048 extends Application {
         root.getChildren().add(this.board);
         this.board.toFront();
         this.update();
-        Scene scene = new Scene(root, root.getBoundsInLocal().getWidth()+2* BoardBase.PADDING_LEFT, root.getBoundsInLocal().getHeight()+2*BoardBase.PADDING_TOP);
+        Scene scene = new Scene(root, root.getBoundsInLocal().getWidth() + 2 * BoardBase.PADDING_LEFT, root.getBoundsInLocal().getHeight() + 2 * BoardBase.PADDING_TOP);
 
         primaryStage.setTitle("Game 2048");
         primaryStage.setScene(scene);
@@ -46,43 +46,39 @@ public class ApplicationGame2048 extends Application {
                 case DOWN:
                 case LEFT:
                 case RIGHT:
-                    this.inputBuffer.add(event.getCode());
-                    this.playNext();
-                    break;
+                    this.play(getDirection(event.getCode()));
                 default:
-                    break;
             }
         }
     }
 
-    private void playNext() {
-        if (!this.playing && !this.inputBuffer.isEmpty()) {
-            this.play(getDirection(this.inputBuffer.remove()));
-        }
-    }
-
     private void play(Direction direction) {
-        this.playing = true;
-        if (this.checkFinished()) {
-            return;
-        }
-        if (this.game.move(direction)) {
+        if (!this.game.isGameOver() && this.game.move(direction)) {
             this.update();
-            this.checkFinished();
         }
-        this.playing = false;
-        this.playNext();
+
+        if (this.game.isFinished()) {
+            if (this.game.isGameOver()) {
+                // todo show game over message
+            } else {
+                // todo show won message
+            }
+        }
     }
 
     private void update() {
-        this.board.update();
+        MoveBoard lastMove = this.game.getMatrix().getLastMove();
+        if (lastMove != null && !MoveBoard.EMPTY.equals(lastMove)) {
+            this.board.update(lastMove);
+        }
 
         Collection<Matrix.Coor> lastAdded = this.game.getLastAdded();
         if (lastAdded != null && !lastAdded.isEmpty()) {
             lastAdded.forEach(c -> {
-                this.board.addNewTile(c.getRow(), c.getCol(), this.game.getMatrix().getValue(c.getRow(), c.getCol()));
+                this.board.addNewTile(c.getRow(), c.getCol(), this.game.getMatrix().getRepresentedValue(c.getRow(), c.getCol()));
             });
         }
+
     }
 
     /*
@@ -101,14 +97,6 @@ public class ApplicationGame2048 extends Application {
             default:
                 throw new AssertionError();
         }
-    }
-
-    /*
-    must display message that game is finished
-    todo
-     */
-    private boolean checkFinished() {
-        return this.game.isFinished();
     }
 
     public static void main(String[] args) {
