@@ -1,6 +1,6 @@
 package game2048_fx;
 
-import game2048.MoveTile;
+import game2048.move.MoveTile;
 import game2048.matrix.Matrix;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
@@ -65,7 +65,10 @@ public class Tile extends TileBackground {
         this.rotateRect.setNode(this.rect);
 
         this.translate.setOnFinished((ActionEvent event) -> {
-            ((Board) this.getParent()).update();
+            ((Board) this.getParent()).doNextMove();
+        });
+        this.appear.setOnFinished((ActionEvent event) -> {
+            ((Board) this.getParent()).doNextMove();
         });
 
     }

@@ -2,7 +2,7 @@ package game2048_fx;
 
 import game2048.Direction;
 import game2048.Game2048;
-import game2048.MoveBoard;
+import game2048.move.MoveBoard;
 import game2048.matrix.Matrix;
 import java.util.Collection;
 import javafx.application.Application;
@@ -16,7 +16,7 @@ import javafx.util.Duration;
 public class ApplicationGame2048 extends Application {
 
     public static final boolean ANIMATION_ROTATIONS = true;
-    public static final Duration DURATION = Duration.seconds(1);
+    public static final Duration DURATION = Duration.seconds(0.1);
 
     private final Game2048 game = new Game2048();
     private final Board board = new Board(((Matrix) game.getMatrix()).getRows(), ((Matrix) game.getMatrix()).getCols());
@@ -67,18 +67,7 @@ public class ApplicationGame2048 extends Application {
     }
 
     private void update() {
-        MoveBoard lastMove = this.game.getMatrix().getLastMove();
-        if (lastMove != null && !MoveBoard.EMPTY.equals(lastMove)) {
-            this.board.update(lastMove);
-        }
-
-        Collection<Matrix.Coor> lastAdded = this.game.getLastAdded();
-        if (lastAdded != null && !lastAdded.isEmpty()) {
-            lastAdded.forEach(c -> {
-                this.board.addNewTile(c.getRow(), c.getCol(), this.game.getMatrix().getRepresentedValue(c.getRow(), c.getCol()));
-            });
-        }
-
+        this.board.addMove(this.game.getMatrix().getLastMove());
     }
 
     /*

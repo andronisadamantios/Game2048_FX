@@ -1,6 +1,7 @@
 package game2048_fx;
 
-import game2048.MoveBoard;
+import game2048.move.AddTile;
+import game2048.move.MoveBoard;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
@@ -28,37 +29,39 @@ public class Board extends BoardBase {
     //private final DelayQueue<MoveBoard> movesToDo = new DelayQueue<>();
     private final Queue<MoveBoard> movesToDo = new ArrayDeque<>();
 
-    public void update(MoveBoard lastMove) {
-        if (!movesToDo.contains(lastMove)) {
+    public void addMove(MoveBoard lastMove) {
+        if (lastMove != null && !movesToDo.contains(lastMove)) {
             movesToDo.add(lastMove);
         }
-        this.update();
+        this.doNextMove();
     }
 
-    protected void update() {
-        if (!movesToDo.isEmpty() && this.noTileAnimating()) {
-            this.updateNext();
-        }
-    }
-
-    private void updateNext() {
-        if (movesToDo.isEmpty()) {
+    protected void doNextMove() {
+        if (movesToDo.isEmpty() || !this.noTileAnimating()) {
             return;
         }
-        MoveBoard lastMove = movesToDo.remove();
 
-        lastMove.tileMoves.stream()
-                .forEach((mt) -> {
-                    Tile tEnd = this.getTile(mt.getEnd().getRow(), mt.getEnd().getCol());
-                    if (tEnd != null) {
-                        tEnd.disappear();
-                    }
-                    Tile t = this.getTile(mt.getStart().getRow(), mt.getStart().getCol());
-                    if (t != null) {
-                        t.toFront();
-                        t.move(mt, mt.getNewValue());
-                    }
-                });
+        this.doMove(movesToDo.remove());
+    }
+
+    private void doMove(MoveBoard lastMove) {
+        // move tiles
+        lastMove.getTileMoves().forEach((mt) -> {
+            Tile tEnd = this.getTile(mt.getEnd().getRow(), mt.getEnd().getCol());
+            if (tEnd != null) {
+                tEnd.disappear();
+            }
+            Tile t = this.getTile(mt.getStart().getRow(), mt.getStart().getCol());
+            if (t != null) {
+                t.toFront();
+                t.move(mt, mt.getValue());
+            }
+        });
+
+        // add new tiles
+        lastMove.getTileAdds().forEach((AddTile t) -> {
+            Board.this.addNewTile(t.getCoor().getRow(), t.getCoor().getCol(), t.getValue());
+        });
     }
 
 }
