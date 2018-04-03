@@ -14,7 +14,7 @@ import javafx.util.Duration;
 public class ApplicationGame2048 extends Application {
 
     public static final boolean ANIMATION_ROTATIONS = true;
-    public static final Duration DURATION = Duration.seconds(0.5);
+    public static final Duration DURATION = Duration.seconds(0.1);
 
     private final Game2048 game = new Game2048();
     private final Board board = new Board(((Matrix) game.getMatrix()).getRows(), ((Matrix) game.getMatrix()).getCols());
@@ -44,9 +44,27 @@ public class ApplicationGame2048 extends Application {
                 case DOWN:
                 case LEFT:
                 case RIGHT:
-                    this.play(getDirection(event.getCode()));
+                    this.play(getMatrixVector(event.getCode()));
                 default:
             }
+        }
+    }
+
+    /*
+    maps keys to matrix vectors
+     */
+    private static Matrix.Vector getMatrixVector(KeyCode kc) {
+        switch (kc) {
+            case UP:
+                return Matrix.Vector.UP;
+            case DOWN:
+                return Matrix.Vector.DOWN;
+            case LEFT:
+                return Matrix.Vector.LEFT;
+            case RIGHT:
+                return Matrix.Vector.RIGHT;
+            default:
+                throw new AssertionError();
         }
     }
 
@@ -68,7 +86,7 @@ public class ApplicationGame2048 extends Application {
         }
     }
 
-    private void play(Direction direction) {
+    private void play(Matrix.Vector direction) {
         if (!this.game.isGameOver() && this.game.move(direction)) {
             this.board.addMove(this.game.getMatrix().getLastMove());
         }
