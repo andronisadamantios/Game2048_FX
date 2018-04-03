@@ -1,9 +1,16 @@
 package game2048_fx;
 
+import game2048.matrix.Matrix;
 import game2048.move.AddTile;
 import game2048.move.MoveBoard;
+import game2048.move.MoveTile;
 import java.util.ArrayDeque;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Queue;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Board extends BoardBase {
 
@@ -11,15 +18,17 @@ public class Board extends BoardBase {
         super(rows, cols);
     }
 
-    public Tile getTile(int row, int col) {
+    public boolean existsTile(Matrix.Coor c) {
         return this.getChildren().stream().filter(n -> n instanceof Tile).map(n -> (Tile) n)
-                .filter(t -> t.getRow() == row && t.getCol() == col).findFirst().orElse(null);
+                .anyMatch(t -> t.getRow() == c.getRow() && t.getCol() == c.getCol());
     }
 
-    public void addNewTile(int row, int col, int value) {
-        Tile tile = new Tile(row, col, value);
-        this.getChildren().add(tile);
-        tile.appear();
+    public Stream<Tile> getTiles(Matrix.Coor c) {
+        return this.getChildren().stream().filter(n -> n instanceof Tile).map(n -> (Tile) n)
+                .filter(t -> t.getRow() == c.getRow() && t.getCol() == c.getCol());
+    }
+    public Tile getTile(Matrix.Coor c) {
+        return this.getTiles(c).findFirst().orElse(null);
     }
 
     private boolean noTileAnimating() {
@@ -30,9 +39,11 @@ public class Board extends BoardBase {
     private final Queue<MoveBoard> movesToDo = new ArrayDeque<>();
 
     public void addMove(MoveBoard lastMove) {
-        if (lastMove != null && !movesToDo.contains(lastMove)) {
-            movesToDo.add(lastMove);
+        if (lastMove == null || movesToDo.contains(lastMove)) {
+            return;
         }
+        ApplicationGame2048.debugHelp("added move: " + lastMove.hashCode());
+        movesToDo.add(lastMove);
         this.doNextMove();
     }
 
@@ -40,28 +51,71 @@ public class Board extends BoardBase {
         if (movesToDo.isEmpty() || !this.noTileAnimating()) {
             return;
         }
-
         this.doMove(movesToDo.remove());
     }
 
     private void doMove(MoveBoard lastMove) {
+
+        System.out.println();
+        ApplicationGame2048.debugHelp("begin move: " + " " + lastMove.hashCode());
+
+        List<Matrix.Coor> starts = lastMove.getTileMoves().stream().map(MoveTile::getStart)
+                .collect(Collectors.toList());
+        
+        // apo ola ta ends ektos apo auta pou einai kai start
+        lastMove.getTileMoves().stream().map(MoveTile::getEnd)
+                .filter(((Predicate<Matrix.Coor>) starts::contains).negate())
+                .map(this::getTile).filter(Predicate.isEqual(null).negate())
+                .forEach(tEnd -> {
+                    if (tEnd != null) {
+                        ApplicationGame2048.debugHelp("start disappear: " + tEnd.toString());
+                        tEnd.disappear();
+                    }
+                });
+
         // move tiles
-        lastMove.getTileMoves().forEach((mt) -> {
-            Tile tEnd = this.getTile(mt.getEnd().getRow(), mt.getEnd().getCol());
-            if (tEnd != null) {
-                tEnd.disappear();
-            }
-            Tile t = this.getTile(mt.getStart().getRow(), mt.getStart().getCol());
-            if (t != null) {
-                t.toFront();
-                t.move(mt, mt.getValue());
-            }
-        });
+        lastMove.getTileMoves().stream()
+                .forEach(mt -> {
+                    Tile t = this.getTile(mt.getStart());
+                    if (t != null) {
+                        t.toFront();
+                        ApplicationGame2048.debugHelp("start translation: " + t.toString() + " using [" + mt.toString() + "]");
+                        t.move(mt);
+                    } else {
+                        ApplicationGame2048.debugHelp(String.format("tile at %s not found", mt.getStart()));
+                    }
+                });
 
         // add new tiles
         lastMove.getTileAdds().forEach((AddTile t) -> {
-            Board.this.addNewTile(t.getCoor().getRow(), t.getCoor().getCol(), t.getValue());
+            Tile tile = new Tile(this, t.getCoor().getRow(), t.getCoor().getCol(), t.getValue());
+            this.getChildren().add(tile);
+            ApplicationGame2048.debugHelp("start appear: " + tile.toString());
+            tile.appear();
         });
+        
+        // remove any tiles krymmena katw apo alla
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.cols; j++) {
+                this.getTiles(new Matrix.Coor(i, j)).sorted(new Comparator<Tile>() {
+                    @Override
+                    public int compare(Tile o1, Tile o2) {
+                        int i1 = Board.this.getChildren().indexOf(o1);
+                        int i2 = Board.this.getChildren().indexOf(o2);
+                        return Integer.compare(i2, i1);
+                    }
+                }).skip(1).forEach(this.getChildren()::remove);
+            }
+        }
+
+    }
+
+    protected void onTileAnimationFinished(Tile t) {
+        this.doNextMove();
+    }
+
+    void onTileAnimationDisappeared(Tile t) {
+        this.getChildren().remove(t);
     }
 
 }

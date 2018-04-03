@@ -2,9 +2,7 @@ package game2048_fx;
 
 import game2048.Direction;
 import game2048.Game2048;
-import game2048.move.MoveBoard;
 import game2048.matrix.Matrix;
-import java.util.Collection;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -16,7 +14,7 @@ import javafx.util.Duration;
 public class ApplicationGame2048 extends Application {
 
     public static final boolean ANIMATION_ROTATIONS = true;
-    public static final Duration DURATION = Duration.seconds(0.1);
+    public static final Duration DURATION = Duration.seconds(0.5);
 
     private final Game2048 game = new Game2048();
     private final Board board = new Board(((Matrix) game.getMatrix()).getRows(), ((Matrix) game.getMatrix()).getCols());
@@ -28,7 +26,7 @@ public class ApplicationGame2048 extends Application {
         root.getChildren().add(this.boardBackground);
         root.getChildren().add(this.board);
         this.board.toFront();
-        this.update();
+        this.board.addMove(this.game.getMatrix().getLastMove());
         Scene scene = new Scene(root, root.getBoundsInLocal().getWidth() + 2 * BoardBase.PADDING_LEFT, root.getBoundsInLocal().getHeight() + 2 * BoardBase.PADDING_TOP);
 
         primaryStage.setTitle("Game 2048");
@@ -52,28 +50,10 @@ public class ApplicationGame2048 extends Application {
         }
     }
 
-    private void play(Direction direction) {
-        if (!this.game.isGameOver() && this.game.move(direction)) {
-            this.update();
-        }
-
-        if (this.game.isFinished()) {
-            if (this.game.isGameOver()) {
-                // todo show game over message
-            } else {
-                // todo show won message
-            }
-        }
-    }
-
-    private void update() {
-        this.board.addMove(this.game.getMatrix().getLastMove());
-    }
-
     /*
     maps keys to directions
      */
-    private Direction getDirection(KeyCode kc) {
+    private static Direction getDirection(KeyCode kc) {
         switch (kc) {
             case UP:
                 return Direction.up;
@@ -88,8 +68,29 @@ public class ApplicationGame2048 extends Application {
         }
     }
 
+    private void play(Direction direction) {
+        if (!this.game.isGameOver() && this.game.move(direction)) {
+            this.board.addMove(this.game.getMatrix().getLastMove());
+        }
+
+        if (this.game.isFinished()) {
+            if (this.game.isGameOver()) {
+                // todo show game over message
+            } else {
+                // todo show won message
+            }
+        }
+    }
+
     public static void main(String[] args) {
         launch(args);
+    }
+
+    static int i = 0;
+
+    public static void debugHelp(String msg) {
+        i++;
+        System.out.println(i + ") " + msg);
     }
 
 }

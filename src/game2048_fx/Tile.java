@@ -7,7 +7,6 @@ import javafx.animation.FadeTransition;
 import javafx.animation.RotateTransition;
 import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
@@ -36,6 +35,7 @@ public class Tile extends TileBackground {
 
     private final Text text;
     private int value;
+    private Board owner;
 
     public void setValue(int value) {
         if (value == this.value) {
@@ -55,8 +55,9 @@ public class Tile extends TileBackground {
         this.rect.setFill(color);
     }
 
-    public Tile(int row, int col, int value) {
+    public Tile(Board board, int row, int col, int value) {
         super(row, col);
+        this.owner = board;
         this.setOpacity(0);
         this.text = createText(this.row, this.col);
         this.setValue(value);
@@ -65,15 +66,22 @@ public class Tile extends TileBackground {
         this.rotateRect.setNode(this.rect);
 
         this.translate.setOnFinished((ActionEvent event) -> {
-            ((Board) this.getParent()).doNextMove();
+            ApplicationGame2048.debugHelp("finished translation: " + this.toString());
+            this.owner.onTileAnimationFinished(this);
         });
         this.appear.setOnFinished((ActionEvent event) -> {
-            ((Board) this.getParent()).doNextMove();
+            if (((FadeTransition) event.getSource()).getByValue() > 0) {
+                ApplicationGame2048.debugHelp("finished appear: " + this.toString());
+            } else {
+                ApplicationGame2048.debugHelp("finished disappear: " + this.toString());
+                this.owner.onTileAnimationDisappeared(this);
+            }
+            this.owner.onTileAnimationFinished(this);
         });
 
     }
 
-    public void move(MoveTile mt, int newValue) {
+    public void move(MoveTile mt) {
         Matrix.Vector vectorMatrix = mt.getVector();
         final double m = vectorMatrix.getDCol() + vectorMatrix.getDRow();
         boolean vertical = vectorMatrix.getDRow() != 0;
@@ -81,14 +89,19 @@ public class Tile extends TileBackground {
         Point2D vector1 = vector.multiply(1 / vector.magnitude());
         boolean rc = (mt.getStart().getCol() * vector1.getY() + mt.getStart().getRow() * vector1.getX()) % 2 == 0;
         boolean b = (m > 0) ^ (rc ^ vertical);
-        this.rotateRect.setByAngle(90 * Math.abs(m) * (b ? 1 : -1));
         Point2D vector2 = vector.multiply(BoardBase.MARGIN + RECT_SIZE);
-        this.translate.setByX(vector2.getX());
-        this.translate.setByY(vector2.getY());
+
+        try {
+            this.rotateRect.setByAngle(90 * Math.abs(m) * (b ? 1 : -1));
+            this.translate.setByX(vector2.getX());
+            this.translate.setByY(vector2.getY());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 
         this.row += mt.getVector().getDRow();
         this.col += mt.getVector().getDCol();
-        this.setValue(newValue);
+        this.setValue(mt.getValue());
 
         if (ApplicationGame2048.ANIMATION_ROTATIONS) {
             this.rotateRect.play();
@@ -112,15 +125,12 @@ public class Tile extends TileBackground {
 
     public void disappear() {
         this.appear.setByValue(-1);
-        this.appear.setOnFinished((ActionEvent event) -> {
-            ((Board) Tile.this.getParent()).getChildren().remove(Tile.this);
-        });
         this.appear.play();
     }
 
     @Override
     public String toString() {
-        return String.format("[%d, %d]: %d", this.row, this.col, this.value);
+        return String.format("(%d, %d): %d %s", this.row, this.col, this.value, this.hashCode());
     }
 
 }
