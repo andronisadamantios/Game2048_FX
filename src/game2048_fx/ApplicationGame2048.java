@@ -13,8 +13,16 @@ import javafx.util.Duration;
 
 public class ApplicationGame2048 extends Application {
 
+    /**
+     * να κάνουν και περιστροφές τα τετράγωνα καθώς κινούνται στις θέσεις τους.
+     * περιστρέφονται ανάλογα με τη θέση τους και τη φορά της κίνησης.
+     */
     public static final boolean ANIMATION_ROTATIONS = true;
-    public static final Duration DURATION = Duration.seconds(0.1);
+
+    /**
+     * η διάρκεια του κάθε animation
+     */
+    public static final Duration DURATION = Duration.seconds(0.5);
 
     private final Game2048 game = new Game2048();
     private final Board board = new Board(((Matrix) game.getMatrix()).getRows(), ((Matrix) game.getMatrix()).getCols());
@@ -37,6 +45,11 @@ public class ApplicationGame2048 extends Application {
 
     }
 
+    /**
+     * on key pressed handler
+     *
+     * @param event
+     */
     private void handleKey(KeyEvent event) {
         if (null != event.getCode()) {
             switch (event.getCode()) {
@@ -50,8 +63,8 @@ public class ApplicationGame2048 extends Application {
         }
     }
 
-    /*
-    maps keys to matrix vectors
+    /**
+     * maps keys to matrix vectors
      */
     private static Matrix.Vector getMatrixVector(KeyCode kc) {
         switch (kc) {
@@ -68,8 +81,8 @@ public class ApplicationGame2048 extends Application {
         }
     }
 
-    /*
-    maps keys to directions
+    /**
+     * maps keys to directions
      */
     private static Direction getDirection(KeyCode kc) {
         switch (kc) {
@@ -93,9 +106,9 @@ public class ApplicationGame2048 extends Application {
 
         if (this.game.isFinished()) {
             if (this.game.isGameOver()) {
-                // todo show game over message
+                // todo: show game over message
             } else {
-                // todo show won message
+                // todo: show won message
             }
         }
     }
