@@ -1,7 +1,9 @@
 package game2048_fx;
 
+import graphicsfx.TileBackground;
+import graphicsfx.BoardBase;
 import game2048.move.MoveTile;
-import game2048.matrix.Matrix;
+import matrix.Matrix;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.RotateTransition;
@@ -35,7 +37,11 @@ public class Tile extends TileBackground {
 
     private final Text text;
     private int value;
-    private Board owner;
+
+    @Override
+    public Board getOwner() {
+        return (Board) super.getOwner();
+    }
 
     public void setValue(int value) {
         if (value == this.value) {
@@ -56,8 +62,8 @@ public class Tile extends TileBackground {
     }
 
     public Tile(Board board, int row, int col, int value) {
-        super(row, col);
-        this.owner = board;
+        super(board, row, col);
+        Board boardAfterSet = (Board) this.owner;
         this.setOpacity(0);
         this.text = createText(this.row, this.col);
         this.setValue(value);
@@ -67,16 +73,16 @@ public class Tile extends TileBackground {
 
         this.translate.setOnFinished((ActionEvent event) -> {
             ApplicationGame2048.debugHelp("finished translation: " + this.toString());
-            this.owner.onTileAnimationFinished(this);
+            boardAfterSet.onTileAnimationFinished(this);
         });
         this.appear.setOnFinished((ActionEvent event) -> {
             if (((FadeTransition) event.getSource()).getByValue() > 0) {
                 ApplicationGame2048.debugHelp("finished appear: " + this.toString());
             } else {
                 ApplicationGame2048.debugHelp("finished disappear: " + this.toString());
-                this.owner.onTileAnimationDisappeared(this);
+                boardAfterSet.onTileAnimationDisappeared(this);
             }
-            this.owner.onTileAnimationFinished(this);
+            boardAfterSet.onTileAnimationFinished(this);
         });
 
     }

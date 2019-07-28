@@ -1,6 +1,7 @@
 package game2048_fx;
 
-import game2048.matrix.Matrix;
+import graphicsfx.BoardBase;
+import matrix.Matrix;
 import game2048.move.AddTile;
 import game2048.move.MoveBoard;
 import game2048.move.MoveTile;
@@ -27,6 +28,7 @@ public class Board extends BoardBase {
         return this.getChildren().stream().filter(n -> n instanceof Tile).map(n -> (Tile) n)
                 .filter(t -> t.getRow() == c.getRow() && t.getCol() == c.getCol());
     }
+
     public Tile getTile(Matrix.Coor c) {
         return this.getTiles(c).findFirst().orElse(null);
     }
@@ -59,11 +61,11 @@ public class Board extends BoardBase {
         System.out.println();
         ApplicationGame2048.debugHelp("begin move: " + " " + lastMove.hashCode());
 
-        List<Matrix.Coor> starts = lastMove.getTileMoves().stream().map(MoveTile::getStart)
+        List<Matrix.Coor> starts = lastMove.StreamTileMoves().map(MoveTile::getStart)
                 .collect(Collectors.toList());
-        
+
         // apo ola ta ends ektos apo auta pou einai kai start
-        lastMove.getTileMoves().stream().map(MoveTile::getEnd)
+        lastMove.StreamTileMoves().map(MoveTile::getEnd)
                 .filter(((Predicate<Matrix.Coor>) starts::contains).negate())
                 .map(this::getTile).filter(Predicate.isEqual(null).negate())
                 .forEach(tEnd -> {
@@ -74,7 +76,7 @@ public class Board extends BoardBase {
                 });
 
         // move tiles
-        lastMove.getTileMoves().stream()
+        lastMove.StreamTileMoves()
                 .forEach(mt -> {
                     Tile t = this.getTile(mt.getStart());
                     if (t != null) {
@@ -87,13 +89,14 @@ public class Board extends BoardBase {
                 });
 
         // add new tiles
-        lastMove.getTileAdds().forEach((AddTile t) -> {
+        lastMove.StreamAddTiles().forEach((AddTile t) -> {
+
             Tile tile = new Tile(this, t.getCoor().getRow(), t.getCoor().getCol(), t.getValue());
-            this.getChildren().add(tile);
+            this.addTile(tile);
             ApplicationGame2048.debugHelp("start appear: " + tile.toString());
             tile.appear();
         });
-        
+
         // remove any tiles krymmena katw apo alla
         for (int i = 0; i < this.rows; i++) {
             for (int j = 0; j < this.cols; j++) {

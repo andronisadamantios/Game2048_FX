@@ -1,8 +1,8 @@
 package game2048_fx;
 
+import graphicsfx.BoardBase;
 import game2048.Direction;
 import game2048.Game2048;
-import game2048.matrix.Matrix;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -10,6 +10,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import matrix.Matrix;
 
 public class ApplicationGame2048 extends Application {
 
