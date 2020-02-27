@@ -56,7 +56,7 @@ public class Tile extends TileBackground {
         }
         this.text.setX(RECT_SIZE / 2 - b.getWidth() / 2);
         this.text.setY(RECT_SIZE / 2 + b.getHeight() / 4);
-        int rgb = game2048.utils.getRGB2(value);
+        int rgb = game2048.utils.getColorForValue((int) (Math.log(value) / Math.log(2)));
         final Color color = Color.rgb((rgb >> 16) & 255, (rgb >> 8) & 255, rgb & 255);
         this.rect.setFill(color);
     }
