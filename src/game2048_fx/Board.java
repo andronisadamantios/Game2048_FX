@@ -5,6 +5,7 @@ import matrix.Matrix;
 import game2048.move.AddTile;
 import game2048.move.MoveBoard;
 import game2048.move.MoveTile;
+import game2048.utils;
 import java.util.ArrayDeque;
 import java.util.Comparator;
 import java.util.List;
@@ -44,7 +45,7 @@ public class Board extends BoardBase {
         if (lastMove == null || movesToDo.contains(lastMove)) {
             return;
         }
-        ApplicationGame2048.debugHelp("added move: " + lastMove.hashCode());
+        utils.debugHelp("added move: " + lastMove.hashCode());
         movesToDo.add(lastMove);
         this.doNextMove();
     }
@@ -59,7 +60,7 @@ public class Board extends BoardBase {
     private void doMove(MoveBoard lastMove) {
 
         System.out.println();
-        ApplicationGame2048.debugHelp("begin move: " + " " + lastMove.hashCode());
+        utils.debugHelp("begin move: " + " " + lastMove.hashCode());
 
         List<Matrix.Coor> starts = lastMove.StreamTileMoves().map(MoveTile::getStart)
                 .collect(Collectors.toList());
@@ -70,7 +71,7 @@ public class Board extends BoardBase {
                 .map(this::getTile).filter(Predicate.isEqual(null).negate())
                 .forEach(tEnd -> {
                     if (tEnd != null) {
-                        ApplicationGame2048.debugHelp("start disappear: " + tEnd.toString());
+                        utils.debugHelp("start disappear: " + tEnd.toString());
                         tEnd.disappear();
                     }
                 });
@@ -81,10 +82,10 @@ public class Board extends BoardBase {
                     Tile t = this.getTile(mt.getStart());
                     if (t != null) {
                         t.toFront();
-                        ApplicationGame2048.debugHelp("start translation: " + t.toString() + " using [" + mt.toString() + "]");
+                        utils.debugHelp("start translation: " + t.toString() + " using [" + mt.toString() + "]");
                         t.move(mt);
                     } else {
-                        ApplicationGame2048.debugHelp(String.format("tile at %s not found", mt.getStart()));
+                        utils.debugHelp(String.format("tile at %s not found", mt.getStart()));
                     }
                 });
 
@@ -93,7 +94,7 @@ public class Board extends BoardBase {
 
             Tile tile = new Tile(this, t.getCoor().getRow(), t.getCoor().getCol(), t.getValue());
             this.addTile(tile);
-            ApplicationGame2048.debugHelp("start appear: " + tile.toString());
+            utils.debugHelp("start appear: " + tile.toString());
             tile.appear();
         });
 

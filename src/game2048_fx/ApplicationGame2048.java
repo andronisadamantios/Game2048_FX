@@ -1,7 +1,6 @@
 package game2048_fx;
 
 import graphicsfx.BoardBase;
-import game2048.Direction;
 import game2048.Game2048;
 import javafx.application.Application;
 import javafx.scene.Group;
@@ -23,7 +22,7 @@ public class ApplicationGame2048 extends Application {
     /**
      * η διάρκεια του κάθε animation
      */
-    public static final Duration DURATION = Duration.seconds(0.5);
+    public static final Duration DURATION = Duration.seconds(0.2);
 
     private final Game2048 game = new Game2048();
     private final Board board = new Board(((Matrix) game.getMatrix()).getRows(), ((Matrix) game.getMatrix()).getCols());
@@ -59,44 +58,9 @@ public class ApplicationGame2048 extends Application {
                 case LEFT:
                 case RIGHT:
                     this.play(getMatrixVector(event.getCode()));
+                    break;
                 default:
             }
-        }
-    }
-
-    /**
-     * maps keys to matrix vectors
-     */
-    private static Matrix.Vector getMatrixVector(KeyCode kc) {
-        switch (kc) {
-            case UP:
-                return Matrix.Vector.UP;
-            case DOWN:
-                return Matrix.Vector.DOWN;
-            case LEFT:
-                return Matrix.Vector.LEFT;
-            case RIGHT:
-                return Matrix.Vector.RIGHT;
-            default:
-                throw new AssertionError();
-        }
-    }
-
-    /**
-     * maps keys to directions
-     */
-    private static Direction getDirection(KeyCode kc) {
-        switch (kc) {
-            case UP:
-                return Direction.up;
-            case DOWN:
-                return Direction.down;
-            case LEFT:
-                return Direction.left;
-            case RIGHT:
-                return Direction.right;
-            default:
-                throw new AssertionError();
         }
     }
 
@@ -118,11 +82,26 @@ public class ApplicationGame2048 extends Application {
         launch(args);
     }
 
-    static int i = 0;
 
-    public static void debugHelp(String msg) {
-        i++;
-        System.out.println(i + ") " + msg);
+    /**
+     * maps keys to matrix vectors
+     * @param kc
+     * @return
+     */
+    public static Matrix.Vector getMatrixVector(KeyCode kc) {
+        switch (kc) {
+            case UP:
+                return Matrix.Vector.UP;
+            case DOWN:
+                return Matrix.Vector.DOWN;
+            case LEFT:
+                return Matrix.Vector.LEFT;
+            case RIGHT:
+                return Matrix.Vector.RIGHT;
+            default:
+                throw new AssertionError();
+        }
     }
+
 
 }

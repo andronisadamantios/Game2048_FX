@@ -3,6 +3,7 @@ package game2048_fx;
 import graphicsfx.TileBackground;
 import graphicsfx.BoardBase;
 import game2048.move.MoveTile;
+import game2048.utils;
 import matrix.Matrix;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
@@ -19,6 +20,12 @@ public class Tile extends TileBackground {
 
     private final static Color COLOR_FOREGROUND = Color.BLACK;
 
+    /**
+     * creates a text node at given coordinates
+     * @param row
+     * @param col
+     * @return 
+     */
     private static Text createText(int row, int col) {
         Text text = new Text("");
         text.setFont(Font.font(60));
@@ -72,14 +79,14 @@ public class Tile extends TileBackground {
         this.rotateRect.setNode(this.rect);
 
         this.translate.setOnFinished((ActionEvent event) -> {
-            ApplicationGame2048.debugHelp("finished translation: " + this.toString());
+            utils.debugHelp("finished translation: " + this.toString());
             boardAfterSet.onTileAnimationFinished(this);
         });
         this.appear.setOnFinished((ActionEvent event) -> {
             if (((FadeTransition) event.getSource()).getByValue() > 0) {
-                ApplicationGame2048.debugHelp("finished appear: " + this.toString());
+                utils.debugHelp("finished appear: " + this.toString());
             } else {
-                ApplicationGame2048.debugHelp("finished disappear: " + this.toString());
+                utils.debugHelp("finished disappear: " + this.toString());
                 boardAfterSet.onTileAnimationDisappeared(this);
             }
             boardAfterSet.onTileAnimationFinished(this);
