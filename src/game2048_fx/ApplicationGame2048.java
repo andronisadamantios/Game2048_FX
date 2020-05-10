@@ -9,7 +9,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import matrix.Matrix;
+import grid.Grid;
+import grid.GridVector;
 
 public class ApplicationGame2048 extends Application {
 
@@ -25,7 +26,7 @@ public class ApplicationGame2048 extends Application {
     public static final Duration DURATION = Duration.seconds(0.2);
 
     private final Game2048 game = new Game2048();
-    private final Board board = new Board(((Matrix) game.getMatrix()).getRows(), ((Matrix) game.getMatrix()).getCols());
+    private final Board board = new Board(((Grid) game.getGrid ()).getRows(), ((Grid) game.getGrid ()).getCols());
     private final BoardBackground boardBackground = new BoardBackground(Game2048.ROWS, Game2048.COLS);
 
     @Override
@@ -34,7 +35,7 @@ public class ApplicationGame2048 extends Application {
         root.getChildren().add(this.boardBackground);
         root.getChildren().add(this.board);
         this.board.toFront();
-        this.board.addMove(this.game.getMatrix().getLastMove());
+        this.board.addMove(this.game.getGrid ().getLastMove());
         Scene scene = new Scene(root, root.getBoundsInLocal().getWidth() + 2 * BoardBase.PADDING_LEFT, root.getBoundsInLocal().getHeight() + 2 * BoardBase.PADDING_TOP);
 
         primaryStage.setTitle("Game 2048");
@@ -64,9 +65,9 @@ public class ApplicationGame2048 extends Application {
         }
     }
 
-    private void play(Matrix.Vector direction) {
+    private void play(GridVector direction) {
         if (!this.game.isGameOver() && this.game.move(direction)) {
-            this.board.addMove(this.game.getMatrix().getLastMove());
+            this.board.addMove(this.game.getGrid ().getLastMove());
         }
 
         if (this.game.isFinished()) {
@@ -88,16 +89,16 @@ public class ApplicationGame2048 extends Application {
      * @param kc
      * @return
      */
-    public static Matrix.Vector getMatrixVector(KeyCode kc) {
+    public static GridVector getMatrixVector(KeyCode kc) {
         switch (kc) {
             case UP:
-                return Matrix.Vector.UP;
+                return GridVector.UP;
             case DOWN:
-                return Matrix.Vector.DOWN;
+                return GridVector.DOWN;
             case LEFT:
-                return Matrix.Vector.LEFT;
+                return GridVector.LEFT;
             case RIGHT:
-                return Matrix.Vector.RIGHT;
+                return GridVector.RIGHT;
             default:
                 throw new AssertionError();
         }

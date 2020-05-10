@@ -4,7 +4,7 @@ import graphicsfx.TileBackground;
 import graphicsfx.BoardBase;
 import game2048.move.MoveTile;
 import game2048.utils;
-import matrix.Matrix;
+import grid.Grid;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.RotateTransition;
@@ -15,6 +15,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import grid.GridVector;
 
 public class Tile extends TileBackground {
 
@@ -95,7 +96,7 @@ public class Tile extends TileBackground {
     }
 
     public void move(MoveTile mt) {
-        Matrix.Vector vectorMatrix = mt.getVector();
+        GridVector vectorMatrix = mt.getVector();
         final double m = vectorMatrix.getDCol() + vectorMatrix.getDRow();
         boolean vertical = vectorMatrix.getDRow() != 0;
         Point2D vector = new Point2D(vectorMatrix.getDCol(), vectorMatrix.getDRow());
